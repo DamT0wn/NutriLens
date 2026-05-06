@@ -1,0 +1,9 @@
+button,
+input,
+a {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
