@@ -15,22 +15,7 @@ export default function AnalyzingScreen() {
         padding: '2rem',
       }}
     >
-      <div style={{ display: 'flex', gap: '8px', alignItems: 'end' }}>
-        {bars.map((delay, index) => (
-          <span
-            key={delay}
-            style={{
-              width: '6px',
-              height: `${24 + index * 6}px`,
-              borderRadius: '3px',
-              background: 'var(--orange)',
-              transformOrigin: 'bottom',
-              animation: `barDance 0.8s ease-in-out ${delay}ms infinite`,
-              boxShadow: 'var(--orange-glow-sm)',
-            }}
-          />
-        ))}
-      </div>
+      <div className="spinner" />
       <div style={{ textAlign: 'center' }}>
         <p
           style={{

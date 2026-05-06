@@ -67,11 +67,11 @@ export default function NutritionCard({ foodName, calories, protein_g, carbs_g, 
                 gap: '0.35rem',
                 padding: '0.3rem 0.55rem',
                 borderRadius: '999px',
-                background: theme.dim,
-                border: `0.5px solid ${theme.accent}`,
-                color: theme.accent,
+                background: theme.badgeBg,
+                border: `0.5px solid ${theme.badgeBg}`,
+                color: theme.badgeText,
                 fontSize: '10px',
-                fontWeight: 500,
+                fontWeight: 700,
                 letterSpacing: '.06em',
                 textTransform: 'uppercase',
               }}
@@ -84,17 +84,17 @@ export default function NutritionCard({ foodName, calories, protein_g, carbs_g, 
           style={{
             padding: '6px 14px',
             borderRadius: '20px',
-            background: theme.dim,
-            border: `0.5px solid ${theme.accent}`,
-            animation: 'bounceIn 0.4s var(--ease-spring) 0.2s both',
+            background: theme.badgeBg,
+            border: `0.5px solid ${theme.badgeBg}`,
+            animation: 'bounceIn 0.4s var(--ease-spring) 0.2s both, pulse 0.4s ease-in-out 1 0.6s',
             minWidth: '90px',
             textAlign: 'center',
           }}
         >
-          <div style={{ fontSize: '24px', fontWeight: 800, fontFamily: 'var(--font-display)', color: theme.accent, lineHeight: 1 }}>
+          <div style={{ fontSize: '24px', fontWeight: 800, fontFamily: 'var(--font-display)', color: theme.badgeText, lineHeight: 1 }}>
             {healthScore}
           </div>
-          <div style={{ fontSize: '10px', fontWeight: 500, color: theme.accent, letterSpacing: '.06em', textTransform: 'uppercase', marginTop: '2px' }}>
+          <div style={{ fontSize: '10px', fontWeight: 700, color: theme.badgeText, letterSpacing: '.06em', textTransform: 'uppercase', marginTop: '2px' }}>
             Score
           </div>
         </div>

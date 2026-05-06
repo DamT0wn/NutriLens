@@ -70,8 +70,8 @@ body {
 }
 
 *:focus-visible {
-  outline: 2px solid var(--orange);
-  outline-offset: 3px;
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
 
@@ -139,4 +139,29 @@ body {
 
 #root {
   min-height: 100dvh;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--green-dim);
+  border-top: 4px solid var(--green);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

@@ -10,7 +10,7 @@ export default function MacroBar({ label, value, unit, max, color, delay = 0 }) 
   }, [delay, percentage])
 
   return (
-    <div style={{ marginBottom: '1rem' }}>
+    <div style={{ marginBottom: '1rem', animation: `slideUp 0.5s ease-out ${delay}s both` }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
         <span
           style={{

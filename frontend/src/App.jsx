@@ -14,49 +14,15 @@ import { fetchNearbyPlaces } from './hooks/useNearbyPlaces.js'
 import { getScoreTheme } from './utils/healthScore.js'
 import { getStreak, incrementStreak } from './utils/streak.js'
 
-const demoAnalysis = {
-  foodName: 'Charred Citrus Grain Bowl',
-  calories: 548,
-  protein_g: 32,
-  carbs_g: 58,
-  fat_g: 21,
-  healthScore: 8,
-  why:
-    'Lean protein, whole grains, and fresh produce keep the glycemic load moderate while delivering strong satiety.',
-  cuisineType: 'healthy bowl',
-}
-
-const demoPlaces = [
-  {
-    name: 'Verdant Kitchen',
-    address: '128 Market Street',
-    rating: 4.8,
-    mapsUrl: 'https://maps.google.com',
-    location: { lat: 37.7756, lng: -122.418 },
-  },
-  {
-    name: 'Glow Salad Lab',
-    address: '42 Mission Ave',
-    rating: 4.7,
-    mapsUrl: 'https://maps.google.com',
-    location: { lat: 37.7762, lng: -122.4212 },
-  },
-  {
-    name: 'Rootline Bowls',
-    address: '9 Sunset Boulevard',
-    rating: 4.6,
-    mapsUrl: 'https://maps.google.com',
-    location: { lat: 37.7745, lng: -122.416 },
-  },
-]
+import { DEMO_BURGER, DEMO_SALAD, getDemoPlaces } from './utils/demoFallback.js'
 
 function App() {
   const [state, setState] = useState('IDLE')
   const [demoMode, setDemoMode] = useState(true)
   const [imageFile, setImageFile] = useState(null)
   const [imagePreview, setImagePreview] = useState('')
-  const [analysis, setAnalysis] = useState(demoAnalysis)
-  const [places, setPlaces] = useState(demoPlaces)
+  const [analysis, setAnalysis] = useState(DEMO_BURGER)
+  const [places, setPlaces] = useState([])
   const [userLocation, setUserLocation] = useState(null)
   const [streak, setStreak] = useState(0)
   const fileInputRef = useRef(null)
@@ -99,9 +65,11 @@ function App() {
     try {
       if (demoMode) {
         await new Promise((resolve) => window.setTimeout(resolve, 1600))
-        setAnalysis(demoAnalysis)
-        setPlaces(demoPlaces)
-        setUserLocation({ lat: 37.775, lng: -122.4195 })
+        setAnalysis(analysis.healthScore === 2 ? DEMO_SALAD : DEMO_BURGER)
+        const lat = 37.775
+        const lng = -122.4195
+        setPlaces(getDemoPlaces(lat, lng))
+        setUserLocation({ lat, lng })
       } else {
         const result = await analyzeFood(imageFile)
         setAnalysis({
@@ -131,9 +99,11 @@ function App() {
       setStreak(getStreak())
       setState('RESULT')
     } catch {
-      setAnalysis(demoAnalysis)
-      setPlaces(demoPlaces)
-      setUserLocation({ lat: 37.775, lng: -122.4195 })
+      setAnalysis(DEMO_BURGER)
+      const lat = 37.775
+      const lng = -122.4195
+      setPlaces(getDemoPlaces(lat, lng))
+      setUserLocation({ lat, lng })
       incrementStreak()
       setStreak(getStreak())
       setState('RESULT')
@@ -196,7 +166,7 @@ function App() {
           scrollbarWidth: 'none',
         }}
       >
-        {(places.length ? places : demoPlaces).map((restaurant, index) => (
+        {(places.length ? places : getDemoPlaces(37.775, -122.4195)).map((restaurant, index) => (
           <RestaurantCard key={`${restaurant.name}-${index}`} restaurant={restaurant} />
         ))}
       </div>
@@ -292,6 +262,7 @@ function App() {
               onPickImage={handleImageChange}
               onAnalyse={runAnalysis}
               inputRef={fileInputRef}
+              demoMode={demoMode}
             />
           </motion.div>
         ) : null}

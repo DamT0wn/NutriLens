@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 
-export default function CameraCapture({ imagePreview, onPickImage, onAnalyse, inputRef }) {
+export default function CameraCapture({ imagePreview, onPickImage, onAnalyse, inputRef, demoMode }) {
   return (
     <div
       style={{
@@ -104,7 +104,7 @@ export default function CameraCapture({ imagePreview, onPickImage, onAnalyse, in
           tap to scan
         </div>
 
-        {imagePreview ? (
+        {imagePreview || demoMode ? (
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} style={{ marginTop: '1.5rem' }}>
             <button
               type="button"
