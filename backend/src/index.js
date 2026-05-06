@@ -1,31 +1,35 @@
 import express from 'express';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { configureCors } from './middleware/cors.js';
 import { rateLimiter } from './middleware/rateLimit.js';
 import analyzeRouter from './routes/analyze.js';
 import placesRouter from './routes/places.js';
 import { logger } from './utils/logger.js';
 
-// Load environment variables
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 8080;
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// In Docker: /app/src/index.js → __dirname = /app/src → ../public = /app/public
+const FRONTEND_DIST = path.join(__dirname, '../public');
 
-// Security middleware
-app.use(helmet());
+// Trust Cloud Run's load balancer (required for rate-limiter IP detection)
+app.set('trust proxy', 1);
 
-// CORS configuration
+// Security middleware — relaxed CSP so the React app loads
+app.use(helmet({
+  contentSecurityPolicy: false,
+}));
+
 app.use(configureCors());
-
-// Rate limiting
 app.use(rateLimiter);
-
-// Body parser for JSON (with size limit)
 app.use(express.json({ limit: '5mb' }));
 
-// Health check endpoint
+// Health check
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'NutriLens API is running' });
 });
@@ -34,26 +38,21 @@ app.get('/health', (req, res) => {
 app.use('/api/analyze', analyzeRouter);
 app.use('/api/places', placesRouter);
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({
-    status: 'error',
-    message: 'Endpoint not found',
-  });
+// Serve React frontend static files
+app.use(express.static(FRONTEND_DIST));
+
+// SPA fallback — all non-API routes return index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(FRONTEND_DIST, 'index.html'));
 });
 
 // Global error handler
 app.use((err, req, res, next) => {
   logger.error('Unhandled error:', err.message);
-
-  res.status(500).json({
-    status: 'error',
-    message: 'Internal server error',
-  });
+  res.status(500).json({ status: 'error', message: 'Internal server error' });
 });
 
-// Start server
 app.listen(PORT, () => {
-  logger.info(`NutriLens API server running on port ${PORT}`);
-  logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  logger.info(`NutriLens server running on port ${PORT}`);
+  logger.info(`Serving frontend from: ${FRONTEND_DIST}`);
 });

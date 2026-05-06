@@ -13,6 +13,9 @@ RUN npm ci --only=production
 # Copy application source
 COPY src ./src
 
+# Copy pre-built frontend static files
+COPY public ./public
+
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001

@@ -1,0 +1,7 @@
+# Include public/ (frontend dist) which is gitignored but needed by the backend
+node_modules
+.env
+.env.*
+.git
+*.md
+.eslintrc.json
