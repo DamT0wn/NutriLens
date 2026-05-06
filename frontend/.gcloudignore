@@ -1,0 +1,10 @@
+# Cloud Build ignore — only upload what nginx Dockerfile actually needs
+# Keep: dist/ and nginx.conf
+node_modules
+.env
+.env.local
+.env.production
+*.log
+.git
+src
+public
