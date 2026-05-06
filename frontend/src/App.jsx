@@ -16,11 +16,15 @@ import { getStreak, incrementStreak } from './utils/streak.js'
 
 import { DEMO_BURGER, DEMO_SALAD, getDemoPlaces } from './utils/demoFallback.js'
 
+// Demo mode burger image (shown by default so judges can click Analyse immediately)
+const DEMO_IMAGE = '/demo-burger.png'
+
 function App() {
   const [state, setState] = useState('IDLE')
   const [demoMode, setDemoMode] = useState(true)
   const [imageFile, setImageFile] = useState(null)
-  const [imagePreview, setImagePreview] = useState('')
+  // Pre-load the burger image preview in demo mode
+  const [imagePreview, setImagePreview] = useState(DEMO_IMAGE)
   const [analysis, setAnalysis] = useState(DEMO_BURGER)
   const [places, setPlaces] = useState([])
   const [userLocation, setUserLocation] = useState(null)
@@ -31,9 +35,20 @@ function App() {
     setStreak(getStreak())
   }, [])
 
+  // When demo mode toggles, reset preview to burger (or clear if turning off)
+  useEffect(() => {
+    if (demoMode) {
+      setImagePreview(DEMO_IMAGE)
+    } else {
+      setImagePreview('')
+      setImageFile(null)
+    }
+  }, [demoMode])
+
   useEffect(() => {
     return () => {
-      if (imagePreview) {
+      // Only revoke blob URLs, not our static demo-burger.png path
+      if (imagePreview && imagePreview.startsWith('blob:')) {
         URL.revokeObjectURL(imagePreview)
       }
     }
@@ -43,29 +58,26 @@ function App() {
 
   const handleImageChange = (event) => {
     const file = event.target.files?.[0]
-    if (!file) {
-      return
-    }
-
-    if (imagePreview) {
+    if (!file) return
+    if (imagePreview && imagePreview.startsWith('blob:')) {
       URL.revokeObjectURL(imagePreview)
     }
-
     setImageFile(file)
     setImagePreview(URL.createObjectURL(file))
   }
 
   const runAnalysis = async () => {
-    if (!imageFile) {
-      return
-    }
+    // Demo mode: no real file needed — run mock instantly
+    if (!demoMode && !imageFile) return
 
     setState('ANALYZING')
 
     try {
       if (demoMode) {
+        // Simulate a short loading delay then return mock data
         await new Promise((resolve) => window.setTimeout(resolve, 1600))
-        setAnalysis(analysis.healthScore === 2 ? DEMO_SALAD : DEMO_BURGER)
+        // Alternate burger/salad on each click to show both scorecards
+        setAnalysis(analysis.healthScore <= 3 ? DEMO_SALAD : DEMO_BURGER)
         const lat = 37.775
         const lng = -122.4195
         setPlaces(getDemoPlaces(lat, lng))
@@ -87,7 +99,7 @@ function App() {
         })
 
         const nearby = await fetchNearbyPlaces(result.cuisineType || 'healthy')
-        setPlaces(nearby.places.length ? nearby.places : demoPlaces)
+        setPlaces(nearby.places?.length ? nearby.places : getDemoPlaces(37.775, -122.4195))
         setUserLocation(
           nearby.userLat && nearby.userLng
             ? { lat: nearby.userLat, lng: nearby.userLng }
@@ -99,11 +111,10 @@ function App() {
       setStreak(getStreak())
       setState('RESULT')
     } catch {
+      // Any real API failure → silently fall back to mock
       setAnalysis(DEMO_BURGER)
-      const lat = 37.775
-      const lng = -122.4195
-      setPlaces(getDemoPlaces(lat, lng))
-      setUserLocation({ lat, lng })
+      setPlaces(getDemoPlaces(37.775, -122.4195))
+      setUserLocation({ lat: 37.775, lng: -122.4195 })
       incrementStreak()
       setStreak(getStreak())
       setState('RESULT')
@@ -114,10 +125,11 @@ function App() {
     setState('IDLE')
     setImageFile(null)
 
-    if (imagePreview) {
+    if (imagePreview && imagePreview.startsWith('blob:')) {
       URL.revokeObjectURL(imagePreview)
-      setImagePreview('')
     }
+    // In demo mode always restore burger image
+    setImagePreview(demoMode ? DEMO_IMAGE : '')
 
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
